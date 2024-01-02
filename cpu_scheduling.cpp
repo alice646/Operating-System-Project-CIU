@@ -12,7 +12,117 @@ struct Process {
   int attributes[6];
 };
 
+void insert(Process *processes, int currentTime, int count) {
+  for (int i = 0; i < count; i++) {
+    int *attributes = processes[i].attributes;
+    if (attributes[5] == 0 && attributes[1] == currentTime) {
+      attributes[5] = 1;
+    }
+  }
+}
 
+void executeProcess(Process *executionProcesses, int processIndex, int count) {
+  for (int i = 0; i < count; i++) {
+    int *attributes = executionProcesses[i].attributes;
+    if (i == processIndex && attributes[4] == 0) {
+      attributes[0] = attributes[0] - 1;
+      if (attributes[0] == 0) {
+        attributes[4] = 1;
+      }
+    } else if (attributes[5] == 1 && attributes[4] == 0) {
+      attributes[3] = attributes[3] + 1;
+    }
+  }
+}
+
+int selectProcessToExecute(Process *processes, int type, int count) {
+  int selectedProcessIndex = -1;
+  int lowestProcessValue = 0;
+  bool isProcessSelected = false;
+
+  for (int i = 0; i < count; i++) {
+    int *attributes = processes[i].attributes;
+
+    if ((isProcessSelected == false && attributes[5] == 1 && attributes[4] == 0) ||
+        (isProcessSelected == true && attributes[5] == 1 && attributes[4] == 0 &&
+         attributes[type] < lowestProcessValue)) {
+      lowestProcessValue = attributes[type];
+      selectedProcessIndex = i;
+      isProcessSelected = true;
+    }
+  }
+
+  return selectedProcessIndex;
+}
+
+
+
+void nonPreemptiveScheduling(Process *pProcesses, int type, int count) {
+  bool isRunning = true;
+  int currentTime = 0;
+  cout << "Non-Preemptive Scheduling starts\n";
+  insert(pProcesses, currentTime, count);
+  while (isRunning == true) {
+    int processToExecute = selectProcessToExecute(pProcesses, type, count);
+    if (processToExecute == -1) {
+      isRunning = false;
+    } else {
+      int *attributes = pProcesses[processToExecute].attributes;
+      while (attributes[4] == 0) {
+        executeProcess(pProcesses, processToExecute, count);
+        currentTime++;
+        insert(pProcesses, currentTime, count);
+      }
+    }
+  }
+  cout << "Scheduling Finish\n";
+  cout << "Total Time: " << currentTime << " time\n";
+}
+
+void roundRobinScheduling(Process *pProcesses, int quantum, int count) {
+  bool isRunning = true;
+  int currentTime = 0;
+  cout << "Round Robin Scheduling starts\n";
+  insert(pProcesses, currentTime, count);
+  int processListSize = count;
+  int currentProcessIndex = 0;
+  while (isRunning == true) {
+    for (int i = 0; i < quantum; i++) {
+      int processToExecute = selectProcessToExecute(pProcesses, 1, count);
+      int *attributes = pProcesses[currentProcessIndex].attributes;
+      if (processToExecute == -1) {
+        isRunning = false;
+        break;
+      } else if (attributes[4] == 1) {
+        break;
+      } else {
+        executeProcess(pProcesses, currentProcessIndex, count);
+        insert(pProcesses, currentTime, count);
+        currentTime++;
+      }
+    }
+    currentProcessIndex++;
+    if (currentProcessIndex == processListSize) {
+      currentProcessIndex = 0;
+    }
+  }
+}
+
+float calculateAverageWaitingTime(Process *pProcesses, int count) {
+  int sum = 0;
+  for (int i = 0; i < count; i++) {
+    int *attributes = pProcesses[i].attributes;
+    sum = sum + attributes[3];
+  }
+  return (sum / static_cast<float>(count));
+}
+
+void displayWaitingTime(Process *pProcesses, int count) {
+  for (int i = 0; i < count; i++) {
+    int *attributes = pProcesses[i].attributes;
+    cout << "P" << i + 1 << ": " << attributes[3] << "ms\n";
+  }
+}
 
 void writeToFile(string output) {
   ofstream file;
@@ -100,7 +210,7 @@ int main(int argc, char *argv[]) {
       cout << "4. Priority Scheduling\n";
       cout << "5. Round-Robin Scheduling\n";
       
-    } break;
+    break;
     case 2: {
       int nonPreemptiveSchedulingType;
       cout << "Choose Between the five Non-Preemptive Scheduling Types \n";
@@ -109,6 +219,49 @@ int main(int argc, char *argv[]) {
       cout << "3. Shortest-Job-First Scheduling\n";
       cout << "4. Priority Scheduling\n";
       cin >> nonPreemptiveSchedulingType;
+      switch (nonPreemptiveSchedulingType) {
+      case 1:
+        cout << "None Scheduling method chosen try again \n";
+        break;
+      case 2:
+        cout << "First Come, First Served Scheduling\n";
+        nonPreemptiveScheduling(processes, 1, processCount);
+        break;
+      case 3:
+        cout << "Shortest-Job-First Scheduling\n";
+        nonPreemptiveScheduling(processes, 0, processCount);
+        break;
+      case 4:
+        cout << "Priority Scheduling\n";
+        nonPreemptiveScheduling(processes, 2, processCount);
+        break;
+      default:
+        cout << "You have to choose between 1 - 4";
+        break;
+      }
+    } break;
+    case 3: {
+      cout << "The Result is:\n";
+      cout << "Processes Waiting Time \n";
+      float average;
+      average = calculateAverageWaitingTime(processes, processCount);
+      displayWaitingTime(processes, processCount);
+      cout << "Average: " << average << "ms\n";
+    } break;
+    case 4: {
+      cout << "Exit Program, Thank you  \n";
+      float averages;
+      averages = calculateAverageWaitingTime(processes, processCount);
+      ofstream file;
+      file.open(outputFileName);
+      file << "Processes Waiting Time \n";
+      for (int i = 0; i < processCount; i++) {
+        int *attributes = processes[i].attributes;
+        file << "P" << i + 1 << ": " << attributes[3] << "ms\n";
+      }
+      file << "Average: " << averages << "ms\n";
+      file.close();
+      isFinished = true;
     } break;
     default:
       cout << "You have to choose between 1 - 4";
