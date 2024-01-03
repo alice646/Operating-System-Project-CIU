@@ -55,7 +55,23 @@ int selectProcessToExecute(Process *processes, int type, int count) {
   return selectedProcessIndex;
 }
 
-
+void preemptiveScheduling(Process *pProcesses, int type, int count) {
+  bool isRunning = true;
+  int currentTime = 0;
+  cout << "Preemptive Scheduling starts\n";
+  while (isRunning == true) {
+    insert(pProcesses, currentTime, count);
+    int processToExecute = selectProcessToExecute(pProcesses, type, count);
+    if (processToExecute == -1) {
+      isRunning = false;
+    } else {
+      executeProcess(pProcesses, processToExecute, count);
+      currentTime++;
+    }
+  }
+  cout << "Scheduling Finish\n";
+  cout << "Total Time: " << currentTime << " time\n";
+}
 
 void nonPreemptiveScheduling(Process *pProcesses, int type, int count) {
   bool isRunning = true;
@@ -209,8 +225,24 @@ int main(int argc, char *argv[]) {
       cout << "3. Shortest-Job-First Scheduling\n";
       cout << "4. Priority Scheduling\n";
       cout << "5. Round-Robin Scheduling\n";
-      
-    break;
+      cin >> preemptiveSchedulingType;
+      switch (preemptiveSchedulingType) {
+      case 1:
+        cout << "None\n";
+        break;
+      case 2:
+        cout << "First Come, First Served Scheduling\n";
+        preemptiveScheduling(processes, 1, processCount);
+        break;
+      case 3:
+        cout << "Shortest-Job-First Scheduling\n";
+        preemptiveScheduling(processes, 0, processCount);
+        break;
+      default:
+        cout << "You have to choose between 1 - 5";
+        break;
+      }
+    } break;
     case 2: {
       int nonPreemptiveSchedulingType;
       cout << "Choose Between the five Non-Preemptive Scheduling Types \n";
