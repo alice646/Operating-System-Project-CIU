@@ -271,6 +271,14 @@ int main(int argc, char *argv[]) {
         cout << "Priority Scheduling\n";
         nonPreemptiveScheduling(processes, 2, processCount);
         break;
+        case 5:
+        cout << "Round-Robin Scheduling\n";
+        cout << "Insert Quantum\n";
+        int quantum;
+        cin >> quantum;
+        roundRobinScheduling(processes, quantum, processCount);
+        break;
+        
       default:
         cout << "You have to choose between 1 - 4";
         break;
