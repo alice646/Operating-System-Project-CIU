@@ -208,7 +208,7 @@ int main(int argc, char *argv[]) {
     j++;
   }
   int userChoice;
-  bool isFinished = false;
+  bool isFinished = true;
   while (isFinished == false) {
     cout << "Choose Action: \n";
     cout << "1. Preemptive Scheduling\n";
@@ -237,6 +237,10 @@ int main(int argc, char *argv[]) {
       case 3:
         cout << "Shortest-Job-First Scheduling\n";
         preemptiveScheduling(processes, 0, processCount);
+        break;
+      case 4:
+        cout << "Priority Scheduling\n";
+        preemptiveScheduling(processes, 2, processCount);
         break;
       default:
         cout << "You have to choose between 1 - 5";
