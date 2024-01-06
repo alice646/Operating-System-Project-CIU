@@ -103,7 +103,7 @@ void roundRobinScheduling(Process *pProcesses, int quantum, int count) {
   int processListSize = count;
   int currentProcessIndex = 0;
   while (isRunning == true) {
-    for (int i = 0; i < quantum; i++) {
+    for (int k = 0; k < quantum; k++) {
       int processToExecute = selectProcessToExecute(pProcesses, 1, count);
       int *attributes = pProcesses[currentProcessIndex].attributes;
       if (processToExecute == -1) {
