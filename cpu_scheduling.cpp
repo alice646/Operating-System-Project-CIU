@@ -98,7 +98,7 @@ void nonPreemptiveScheduling(Process *pProcesses, int type, int count) {
 void roundRobinScheduling(Process *pProcesses, int quantum, int count) {
   bool isRunning = true;
   int currentTime = 0;
-  cout << "Round Robin Scheduling starts\n";
+  cout << "Round Robin Scheduling start\n";
   insert(pProcesses, currentTime, count);
   int processListSize = count;
   int currentProcessIndex = 0;
