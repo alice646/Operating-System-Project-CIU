@@ -40,14 +40,14 @@ int selectProcessToExecute(Process *processes, int type, int count) {
   int lowestProcessValue = 0;
   bool isProcessSelected = false;
 
-  for (int i = 0; i < count; i++) {
-    int *attributes = processes[i].attributes;
+  for (int k = 0; k < count; k++) {
+    int *attributes = processes[k].attributes;
 
     if ((isProcessSelected == false && attributes[5] == 1 && attributes[4] == 0) ||
         (isProcessSelected == true && attributes[5] == 1 && attributes[4] == 0 &&
          attributes[type] < lowestProcessValue)) {
       lowestProcessValue = attributes[type];
-      selectedProcessIndex = i;
+      selectedProcessIndex = k;
       isProcessSelected = true;
     }
   }
