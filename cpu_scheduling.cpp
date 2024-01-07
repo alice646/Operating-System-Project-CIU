@@ -109,7 +109,7 @@ void roundRobinScheduling(Process *pProcesses, int quantum, int count) {
       if (processToExecute == -1) {
         isRunning = false;
         break;
-      } else if (attributes[2] == 1) {
+      } else if (attributes[2] == -1) {
         break;
       } else {
         executeProcess(pProcesses, currentProcessIndex, count);
