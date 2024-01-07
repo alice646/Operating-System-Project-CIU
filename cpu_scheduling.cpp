@@ -92,7 +92,7 @@ void nonPreemptiveScheduling(Process *pProcesses, int type, int count) {
     }
   }
   cout << "Scheduling Finish\n";
-  cout << "Total Time: " << currentTime << " time\n";
+  cout << "Total Time :" << currentTime << " time\n";
 }
 
 void roundRobinScheduling(Process *pProcesses, int quantum, int count) {
