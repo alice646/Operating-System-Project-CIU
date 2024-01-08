@@ -63,7 +63,7 @@ void preemptiveScheduling(Process *pProcesses, int type, int count) {
     insert(pProcesses, currentTime, count);
     int processToExecute = selectProcessToExecute(pProcesses, type, count);
     if (processToExecute == -1) {
-      isRunning = false
+      isRunning = false;
     } else {
       executeProcess(pProcesses, processToExecute, count);
       currentTime++;
