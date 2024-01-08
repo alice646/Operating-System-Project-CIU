@@ -13,8 +13,8 @@ struct Process {
 };
 
 void insert(Process *processes, int currentTime, int count) {
-  for (int k = 0; k < count; k++) {
-    int *attributes = processes[k].attributes;
+  for (int i = 0; i < count; i++) {
+    int *attributes = processes[i].attributes;
     if (attributes[5] == 0 && attributes[1] == currentTime) {
       attributes[5] = 1;
     }
