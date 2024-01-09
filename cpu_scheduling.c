@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h> 
+#include <string.h>
+#include <unistd.h>
 
 struct Process {
   int attributes[6];
@@ -34,14 +35,14 @@ int selectProcessToExecute(struct Process *processes, int type, int count) {
   int lowestProcessValue = 0;
   int isProcessSelected = 0;
 
-  for (int k = 0; k < count; k++) {
-    int *attributes = processes[k].attributes;
+  for (int i = 0; i < count; i++) {
+    int *attributes = processes[i].attributes;
 
     if ((isProcessSelected == 0 && attributes[5] == 1 && attributes[4] == 0) ||
         (isProcessSelected == 1 && attributes[5] == 1 && attributes[4] == 0 &&
          attributes[type] < lowestProcessValue)) {
       lowestProcessValue = attributes[type];
-      selectedProcessIndex = k;
+      selectedProcessIndex = i;
       isProcessSelected = 1;
     }
   }
@@ -92,18 +93,18 @@ void nonPreemptiveScheduling(struct Process *pProcesses, int type, int count) {
 void roundRobinScheduling(struct Process *pProcesses, int quantum, int count) {
   int isRunning = 1;
   int currentTime = 0;
-  printf("Round Robin Scheduling start\n");
+  printf("Round Robin Scheduling starts\n");
   insert(pProcesses, currentTime, count);
   int processListSize = count;
   int currentProcessIndex = 0;
   while (isRunning == 1) {
-    for (int k = 0; k < quantum; k++) {
+    for (int i = 0; i < quantum; i++) {
       int processToExecute = selectProcessToExecute(pProcesses, 1, count);
       int *attributes = pProcesses[currentProcessIndex].attributes;
       if (processToExecute == -1) {
         isRunning = 0;
         break;
-      } else if (attributes[2] == 1) {
+      } else if (attributes[4] == 1) {
         break;
       } else {
         executeProcess(pProcesses, currentProcessIndex, count);
@@ -137,13 +138,12 @@ void displayWaitingTime(struct Process *pProcesses, int count) {
 void writeToFile(char *output) {
   FILE *file = fopen(output, "w");
   if (file == NULL) {
-    perror("Error opening file");
-    exit(EXIT_FAILURE);
+    printf("Error opening file\n");
+    exit(1);
   }
 
   printf("Enter your message: ");
   fprintf(file, "Average: ms\n");
-
   fclose(file);
 }
 
@@ -153,8 +153,8 @@ char *outputFileName = NULL;
 int main(int argc, char *argv[]) {
   int option;
   if (argc < 5) {
-    printf("You should introduce 2 arguments\n");
-    exit(EXIT_FAILURE);
+    printf("You should introduce 2 arguments");
+    exit(0);
   }
   while ((option = getopt(argc, argv, "f:o:")) != -1) {
     switch (option) {
@@ -169,23 +169,32 @@ int main(int argc, char *argv[]) {
     }
   }
   if (inputFileName == NULL || outputFileName == NULL) {
-    printf("Use the parameter -f for input and -o for output\n");
-    exit(EXIT_FAILURE);
+    printf("Use the parameter -f for input and -o for output");
+    exit(0);
   }
   int processCount = 0;
-  struct Process tempArray[100]; // Assuming a maximum of 100 processes
+  struct Process tempArray[100];  // Assuming a maximum of 100 processes
   FILE *file = fopen(inputFileName, "r");
   if (file == NULL) {
-    perror("Error opening file");
-    exit(EXIT_FAILURE);
+    printf("Error opening file\n");
+    exit(1);
   }
-  char line[100];
-  while (fgets(line, sizeof(line), file) != NULL) {
+  char line[256];
+  while (fgets(line, sizeof(line), file)) {
+    char *token = strtok(line, ":");
     int attributes[6];
-    sscanf(line, "%d:%d:%d:%d:%d:%d", &attributes[0], &attributes[1], &attributes[2],
-           &attributes[3], &attributes[4], &attributes[5]);
-    struct Process process = {{attributes[0], attributes[1], attributes[2],
-                               attributes[3], attributes[4], attributes[5]}};
+    int count = 0;
+    while (token != NULL) {
+      attributes[count] = atoi(token);
+      token = strtok(NULL, ":");
+      count++;
+    }
+    attributes[2] = atoi(token);
+    attributes[3] = 0;
+    attributes[4] = 0;
+    attributes[5] = 0;
+    struct Process process;
+    memcpy(process.attributes, attributes, sizeof(attributes));
     tempArray[processCount] = process;
     processCount++;
   }
@@ -231,8 +240,15 @@ int main(int argc, char *argv[]) {
         printf("Priority Scheduling\n");
         preemptiveScheduling(processes, 2, processCount);
         break;
+      case 5:
+        printf("Round-Robin Scheduling\n");
+        printf("Insert Quantum\n");
+        int quantum;
+        scanf("%d", &quantum);
+        roundRobinScheduling(processes, quantum, processCount);
+        break;
       default:
-        printf("You have to choose between 1 - 5\n");
+        printf("You have to choose between 1 - 5");
         break;
       }
     } break;
@@ -260,15 +276,8 @@ int main(int argc, char *argv[]) {
         printf("Priority Scheduling\n");
         nonPreemptiveScheduling(processes, 2, processCount);
         break;
-      case 5:
-        printf("Round-Robin Scheduling\n");
-        printf("Insert Quantum\n");
-        int quantum;
-        scanf("%d", &quantum);
-        roundRobinScheduling(processes, quantum, processCount);
-        break;
       default:
-        printf("You have to choose between 1 - 4\n");
+        printf("You have to choose between 1 - 4");
         break;
       }
     } break;
@@ -286,8 +295,8 @@ int main(int argc, char *argv[]) {
       averages = calculateAverageWaitingTime(processes, processCount);
       FILE *file = fopen(outputFileName, "w");
       if (file == NULL) {
-        perror("Error opening file");
-        exit(EXIT_FAILURE);
+        printf("Error opening file\n");
+        exit(1);
       }
       fprintf(file, "Processes Waiting Time \n");
       for (int i = 0; i < processCount; i++) {
@@ -299,7 +308,7 @@ int main(int argc, char *argv[]) {
       isFinished = 1;
     } break;
     default:
-      printf("You have to choose between 1 - 4\n");
+      printf("You have to choose between 1 - 4");
       break;
     }
   }

@@ -1,1 +1,7 @@
-
+Processes Waiting Time 
+P1: 0ms
+P2: 0ms
+P3: 0ms
+P4: 0ms
+P5: 0ms
+Average: 0.000000ms
